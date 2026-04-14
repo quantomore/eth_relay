@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Relay Pro</title>
+    <style>
+        body { font-family: Segoe UI, Arial; background: #0d0d0d; color: #9aa0a6; margin: 0; }
+        .page { display: none; padding: 1px; max-width: 500px; margin: auto; }
+        .page.show { display: block; }
+        .brand-header {  text-align: center; padding: 30px 10px 15px 10px; background: #0d0d0d; color: #00ff41; }
+        .beast-icon { font-size: 24px; margin-bottom: 5px; filter: drop-shadow(0 0 10px #00ff40ca); }
+        .brand-header h1 { margin: 0; font-size: 24px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; text-shadow: 2px 2px 0px #000, 0 0 15px rgba(0,255,65,0.4); }
+        .sub-brand { font-size: 10px; color: #9aa0a6; letter-spacing: 4px; margin-top: 5px; font-weight: bold; }
+
+        .nav {  display: flex; justify-content: center; background: #1a1a1a; padding: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border-bottom: 2px solid #333; }
+        .nav div { padding: 10px 20px; margin: 0 5px; cursor: pointer; transition: all 0.4s ease; border-radius: 10px; color: #5f6368; font-weight: 500; }
+        .nav div:hover { color: #00ff41; }
+        .active { color: #00ff41 !important; border: 2px solid #00ff41; background: #162017; }
+        .row { display: flex; align-items: center; background: #1e1e1e; padding: 15px; margin-top: 10px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: background-color 0.3s ease, border-left 0.4s ease; border-left: 5px solid transparent; color: #9aa0a6; }
+            /* .row-container { margin-bottom: 10px; background: #1e1e1e; border-radius: 8px; overflow: hidden; }
+            .row { margin-bottom: 0; border-radius: 8px 8px 0 0; } */
+
+            .row.active-relay { border-left: 5px solid #07d63b; box-shadow: 0 0 6px rgba(0,255,65,0.1); }
+        /* !!! */
+        .row:hover .slider { border-color: #bd4646; }
+        /* .settings input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; } */
+        .settings-group { display: flex; align-items: center; margin-bottom: 15px; text-align: left; }
+        .settings-group label { width: 150px; min-width: 150px; font-weight: bold; color: #716f6f; }
+        .settings-group input { padding: 3px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; filter: drop-shadow(0 0 3px #00ff41); font-weight: bold; text-align: center; }
+        .label { flex: 1; font-weight: bold; }
+        .uptime { flex: 1; text-align: right; font-family: monospace; font-size: 1.1em; color: #708f70; margin-right: 15px; }
+
+        .switch { position: relative; width: 50px; height: 24px; }
+        .switch input { display: none; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #1a0505;  border-radius: 24px; transition: 0.1s; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: rgb(181, 68, 68); border-radius: 50%; transition: 0.1s; }
+
+        input:checked + .slider {  background: #1a2e1a; border-color: #00ff41; box-shadow: inset 0 0 5px rgba(0, 255, 65, 0.2); }
+        input:checked + .slider:before { transform: translateX(26px); background: #00ff41; filter: drop-shadow(0 0 5px #00ff41); }
+        .save_ip {background: #1a73e8;
+            display: flex;
+            padding:10px 20px;
+            color:white;
+            border:none;
+            border-radius:6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+
+        }
+        .save_ip:active { background: #0d47a1; box-shadow: 0 1px 2px rgba(156, 104, 104, 0.2); transform: translateY(1px); }
+        .danger { color: #cd5240; font-size: 0.9em; font-weight: bold; margin: 15px 0; }
+
+    .wd-btn { cursor: pointer; padding: 5px; margin-right: 10px; font-size: 18px; transition: 0.3s; color: #444; }
+    .wd-btn.active-wd { color: #fbbd05bc; filter: drop-shadow(0 0 5px #fbbc05); }
+    .ping-marker { width: 18px; height: 18px; border-radius: 50%; display: inline-block; margin-right: 10px; background: #333; }
+    .ping-ok { background: #00ff4047; box-shadow: 0 0 5px #00ff41; }
+    .ping-fail { background: #ff4141; box-shadow: 0 0 5px #ff4141; }
+
+        /* .watchdog-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: rgba(0,0,0,0.2);
+            border-radius: 0 0 8px 8px;
+            padding: 0 15px;
+        } */
+.watchdog-panel {
+        max-height: 0; overflow: hidden; transition: all 0.4s ease;
+        background: #161616; padding: 0 15px; font-size: 0.9em;
+    }
+        /* .watchdog-panel.open {
+            max-height: 200px;
+            padding: 15px;
+            border-top: 1px dashed #444;
+        } */
+.watchdog-panel.open { max-height: 250px; padding: 15px; border-top: 1px solid #333; }
+
+        /* .wd-icon {
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 1.2em;
+            filter: grayscale(1);
+            transition: 0.3s;
+        } */
+        /* нічого взамін */
+
+        /* .wd-active { filter: grayscale(0) drop-shadow(0 0 5px #00ff41); } */
+        /* ---нічого взамін  */
+        .wd-row { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
+    .wd-row label { width: 100px; font-size: 0.8em; color: #666; }
+    .wd-row input {
+        background: #0d0d0d; border: 1px solid #333; color: #00ff41;
+        padding: 5px; border-radius: 4px; width: 120px; text-align: center;
+    }
+    .btn-apply {
+        background: #333; color: #eee; border: none; padding: 5px 15px;
+        border-radius: 4px; cursor: pointer; width: 100%; margin-top: 5px;
+    }
+    .btn-apply:hover { background: #444; color: #00ff41; }
+    </style>
+</head>
+<body>
+    <div class="brand-header">
+        <div class="beast-icon">⚡</div>
+        <h1>VOLT-PANTHER 3000</h1>
+        <div class="sub-brand">PREDATORY POWER MANAGEMENT</div>
+    </div>
+
+    <div class="nav">
+        <div id="t1" class="active" onclick="tab('control')">Керування</div>
+        <div id="t2" onclick="tab('settings')">Мережа</div>
+    </div>
+
+    <div id="control" class="page show">
+        <div id="relays_list">Завантаження каналів...</div>
+    </div>
+
+    <div id="settings" class="page">
+        <h3>Налаштування IP</h3>
+        <div class="settings-group">
+            <label for="ip_val">IP адреса:</label>
+            <input type="text" id="ip_val" placeholder="0.0.0.0">
+        </div>
+
+        <div class="settings-group">
+            <label for="gw_val">Шлюз мережі:</label>
+            <input type="text" id="gw_val" placeholder="0.0.0.0">
+        </div>
+        <div class="danger">
+            <label style="width: auto; cursor: pointer;">
+                <input type="checkbox" id="lock" style="width: auto; margin-right: 10px;">
+                підтверджую зміну IP
+            </label>
+        </div>
+        <button id="btn_save_ip" class="save_ip" onclick="saveNet()" >
+            Зберегти та перезавантажити
+        </button>
+
+    </div>
+
+    <script>
+        // --- Блок для відладки (Mock API) ---
+        // +++ перевірити чи треба нижче речез else
+        if (location.hostname === "localhost" || location.protocol === "file:") {
+            const mockData = {
+                relays: {
+                    // +++ уточнити формат запису json
+                    // "12": {
+                    //     //  ch: 1, "state": 1, uptime: 3661, "ping_ip": "192.168.1.50", "ping_ok": true
+                    //     "state": 1,
+                    //     "uptime": 3600,
+                    //     "wd_ip": "192.168.1.50",
+                    //     "wd_enabled": true,
+                    //     "ping_status": 1 // 1 - OK, 0 - FAIL
+                    // },
+                    "12": { ch: 1, state: true, uptime: 3661, wd_ip: "192.168.1.1", wd_t: 30, wd_r: 5, ping: 1 },
+                    "13": { ch: 2, state: false, uptime: 0, wd_ip: "", wd_t: 60, wd_r: 5, ping: 0 },
+                    "14": { ch: 3, state: true, uptime: 45, wd_ip: "192.168.1.1", wd_t: 60, wd_r: 5, ping: 0  },
+                    "15": { ch: 4, state: false, uptime: 0, wd_ip: "", wd_t: 60, wd_r: 10, ping: 0  },
+                    // "16": { ch: 5, state: false, uptime: 0, wd_ip: "192.168.1.10", wd_t: 60, wd_r: 5, ping: 0   }
+
+                },
+                net: { ip: "192.168.1.111", gw: "192.168.1.1" }
+            };
+            // +++ якась ще має бути логіка /set_wd
+
+            window.fetch = async (url) => {
+                console.log("Mock API call:", url);
+
+                // Відповідь для статусу
+                if (url.includes('/status')) {
+                    return {
+                        json: async () => mockData
+                    };
+                }
+
+                // Емуляція перемикання реле
+                if (url.includes('/update')) {
+                    const params = new URLSearchParams(url.split('?')[1]);
+                    const pin = params.get('pin');
+                    const state = params.get('state') === '1';
+                    if (mockData.relays[pin]) {
+                        mockData.relays[pin].state = state;
+                        if (!state) mockData.relays[pin].uptime = 0;
+                    }
+                    return { ok: true };
+                }
+
+                return { ok: true, json: async () => ({}) };
+                // +++ треба пояснення плгоритму
+            };
+        }
+        // ------------------------------------
+
+        let relayPins = []; // Сюди завантажаться піни з ESP32
+
+        function tab(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
+            document.querySelectorAll('.nav div').forEach(d => d.classList.remove('active'));
+            document.getElementById(id).classList.add('show');
+            event.currentTarget.classList.add('active');
+        }
+
+        async function updateStatus() {
+            try {
+                const res = await fetch('/status');
+                const data = await res.json();
+                console.log(data);
+
+                // Якщо список пінів ще не завантажено - будуємо інтерфейс
+                if (relayPins.length === 0) {
+                    relayPins = Object.keys(data.relays);
+                    let html = '';
+                    relayPins.forEach(p => {
+                        const r = data.relays[p];
+                        // +++ чи можна вдосконалити код , щоб була підсвітка синтаксису
+                        html += `
+                        <div class="row-container">
+                            <div class="row" id="row${p}">
+                                <div class="label">Канал ${r.ch}</div>
+                                <div id="wd_btn_status${p}" class="wd-btn ${r.wd_ip ? 'active-wd' : ''}" onclick="toggleWD(${p})">watchDog</div>
+                                <div id="ping_m${p}" class="ping-marker ${r.ping ? 'ping-ok' : (r.wd_ip ? 'ping-fail' : '')}"></div>
+
+                                <div class="uptime" id="up${p}">0s</div>
+                                <label class="switch">
+                                    <input type="checkbox" id="sw${p}" onchange="toggle(${p}, this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div id="wd_panel${p}" class="watchdog-panel">
+                                <div class="wd-row">
+                                    <label>IP для Ping:</label>
+                                    <input type="text" id="wd_ip${p}" value="${r.wd_ip || ''}" placeholder="0.0.0.0">
+                                    <div class="wd-btn" onclick="testping(${p})">test</div>
+                                    <span id="test_res${p}" style="margin-left:10px; font-weight:bold; font-size:12px;"></span>
+                                </div>
+                                <div class="wd-row">
+                                    <label>Інтервал (сек):</label>
+                                    <input type="number" id="wd_t${p}" value="${r.wd_t || 30}">
+                                </div>
+                                <div class="wd-row">
+                                    <label>Ребут (сек):</label>
+                                    <input type="number" id="wd_r${p}" value="${r.wd_r || 5}">
+                                </div>
+                                <button class="btn-apply" onclick="saveWD(${p})">Застосувати Watchdog</button>
+                            </div>
+                        </div>`;
+                    });
+                    document.getElementById('relays_list').innerHTML = html;
+                }
+
+                // Оновлюємо стан кожного каналу
+                relayPins.forEach(p => {
+                    const info = data.relays[p];
+                    const row = document.getElementById(`row${p}`);
+                    const cb = document.getElementById(`sw${p}`);
+                    const up = document.getElementById(`up${p}`);
+                    const wdBtn = document.getElementById(`wd_btn_status${p}`);
+                    const pingM = document.getElementById(`ping_m${p}`);
+
+                    if (cb) cb.checked = info.state;
+                    if (row) info.state ? row.classList.add('active-relay') : row.classList.remove('active-relay');
+
+                    if (up) {
+                        let s = info.uptime;
+                        up.innerText = `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ${s%60}s`;
+                    }
+                    // Оновлюємо статус кнопки Watchdog (активний/ні)
+                    if (wdBtn) {
+                        info.wd_ip ? wdBtn.classList.add('active-wd') : wdBtn.classList.remove('active-wd');
+                    }
+                    // Оновлюємо маркер пінга
+                    if (pingM) {
+                        pingM.className = 'ping-marker'; // скидаємо класи
+                        if (info.wd_ip) {
+                            pingM.classList.add(info.ping ? 'ping-ok' : 'ping-fail');
+                        }
+                    }
+                });
+
+                if (document.activeElement.id !== 'ip_val' && document.activeElement.id !== 'gw_val') {
+                    document.getElementById('ip_val').value = data.net.ip;
+                    document.getElementById('gw_val').value = data.net.gw;
+                }
+
+            } catch(e) { console.error("API Error", e); }
+        }
+
+        async function testping(pin) {
+            const ip = document.getElementById(`wd_ip${pin}`).value;
+            const resSpan = document.getElementById(`test_res${pin}`);
+
+            if (!ip || ip === "0.0.0.0") {
+                resSpan.innerText = "!?";
+                resSpan.style.color = "#fbbc05"; // Жовтий - помилка вводу
+                return;
+            }
+
+            // Індикація завантаження
+            resSpan.innerText = "...";
+            resSpan.style.color = "#9aa0a6";
+
+            try {
+                const res = await fetch(`/test_ping?ip=${ip}`);
+                const result = await res.text();
+
+                if (result === "OK") {
+                    resSpan.innerText = "OK";
+                    resSpan.style.color = "#00ff41"; // Зелений
+                } else {
+                    resSpan.innerText = "FAIL";
+                    resSpan.style.color = "#ff4d4d"; // Червоний
+                }
+            } catch (e) {
+                resSpan.innerText = "ERR";
+                resSpan.style.color = "#ff4d4d";
+            }
+
+            // Прибираємо напис через 5 секунд, щоб не муляв очі
+            setTimeout(() => { resSpan.innerText = ""; }, 5000);
+        }
+
+        function toggle(pin, state) {
+            fetch(`/update?pin=${pin}&state=${state ? 1 : 0}`);
+        }
+        function toggleWD(pin) {
+                document.getElementById(`wd_panel${pin}`).classList.toggle('open');
+            }
+        function saveWD(pin) {
+            const ip = document.getElementById(`wd_ip${pin}`).value;
+            const t = document.getElementById(`wd_t${pin}`).value;
+            const r = document.getElementById(`wd_r${pin}`).value;
+            fetch(`/set_wd?pin=${pin}&ip=${ip}&t=${t}&r=${r}`).then(() => alert("WD Збережено"));
+        }
+
+
+        function saveNet() {
+            if(!document.getElementById('lock').checked) return alert("Підтвердіть ризики!");
+            const ip = document.getElementById('ip_val').value;
+            const gw = document.getElementById('gw_val').value;
+            fetch(`/set_ip?ip=${ip}&gw=${gw}`).then(() => alert("Плата перезавантажується..."));
+        }
+
+
+        setInterval(updateStatus, 1000);
+        updateStatus(); // Перший запуск
+    </script>
+</body>
+</html>
