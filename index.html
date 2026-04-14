@@ -146,9 +146,12 @@
         // --- Блок для відладки (Mock API) ---
         // +++ перевірити чи треба нижче речез else
         // if (location.hostname === "localhost" || location.protocol === "file:") {
-if (location.hostname === "localhost" || 
-    location.hostname.includes("github.io") || 
-    location.protocol === "file:") {
+const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+const isGitHub = location.hostname.includes("github.io");
+const isFile = location.protocol === "file:";
+        if (isLocal || isGitHub || isFile) {
+            console.log("🛠️ Mock Mode Active");
+        
         const mockData = {
                 relays: {
                     // +++ уточнити формат запису json
