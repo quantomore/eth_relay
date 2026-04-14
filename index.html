@@ -145,8 +145,11 @@
     <script>
         // --- Блок для відладки (Mock API) ---
         // +++ перевірити чи треба нижче речез else
-        if (location.hostname === "localhost" || location.protocol === "file:") {
-            const mockData = {
+        // if (location.hostname === "localhost" || location.protocol === "file:") {
+if (location.hostname === "localhost" || 
+    location.hostname.includes("github.io") || 
+    location.protocol === "file:") {
+        const mockData = {
                 relays: {
                     // +++ уточнити формат запису json
                     // "12": {
